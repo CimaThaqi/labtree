@@ -1,0 +1,246 @@
+#+TITLE:     Virtual Satellite Image Processing and Analysis Laboratory
+#+AUTHOR:    A.V.Ravi kiran
+#+AUTHOR:    Siddhartha Chaki
+#+EMAIL:     me15btech11039@iith.ac.in
+#+EMAIL:     siddharthachaki02@gmail.com
+
+#+DESCRIPTION: This document expalins how Virtual Satellite Image Processing and Analysis Laboratory is developed.
+
+** About
+This is an offline application,user has to download the lab,install all the required softwares and then then run the lab.\\
+This lab is about image processing in which user inputs a image,selects required controls,clicks on submit and then image is processed and
+displayed to user.
+
+** Aproach
+This lab uses Scialb for processing the images and python is used to call scilab and to build user interface.
+
+** Technologies Used:
+
+- *Scilab*
+ + SIVP Toolbox
+
+- *Python2*
+ + pip
+ + Kivy
+ + Scilab2py
+ + scipy
+ + numpy
+ + pygame
+
+- *OpenCV*
+
+Note: 1.This lab works only with python2 but not python3.
+      2.Installation procedure is given in user manual.
+
+** Development Envinorment:
+ - OS: Ubuntu 14.04, 64 bit
+ - Text Editor: Atom
+ - Python 2.7.6
+ - Scilab 5.5.0
+ - kivy 1.9.2
+
+** Understnding Files
+
+ - This lab contains six experiments
+  + Viewing Images in Different Bands is in exp1 folder
+  + Contrast Enhancement is in exp2 folder
+  + Smoothing is in exp3 folder
+  + Edge Detection is in exp4 folder
+  + Frequency Domain Filtering (Fourier Transform) is in exp5 folder
+  + Colour Transform is in exp6 folder
+  
+
+ - In each folder there are two files named experiment(number).py and experiment(number).kv
+  * experiment(number).kv is a kivy file which contains the layout of the experiment GUI.kivy is used to build GUI.
+  * experiment(number).py which is a python file contains all the functionality of recieving inputs,validating inputs,calling scilab,creating\\
+    folders and displaying output images.
+
+ - In each folder there are few files with extension of .sci,these are scilab files.These files are used to process images and produce output images.
+ - Here's the list of scilab files which are called from python.
+  * Exp1 - imgdisplay.sci
+  * Exp2 - enhancement.sci
+  * Exp3 - filternew.sci
+  * Exp4 - test.sci
+  * Exp5 - fftfilter.sci
+  * Exp6 - colortransform.sci
+
+** How it works?
+
+ - When button with Experiment name is clicked in main menu,the python file experiment(number).py present in exp(number) directory is called.This
+ file has a class named 'Experiment(number)App'.This class contains all the functions to handle inputs,call scilab and display output images.
+ - Here are some of the common functions present in all experiments
+
+ - *show_filechooser(arguments)*:
+  * This function is called when 'Input Image' button is clicked.
+  * This function makek the main image transparent (changes main image source to 'no.gif') and displays file selector.(by deafult the height of
+    filechooser is set to 0,this function changes height to non-zero value, hence displaying the filechooser)\\
+
+ - *show_selected_img(arguments)*:
+  * This function is called when image file is selected in file chooser.
+  * Closes the file chooser (.i.e changes the height to 0)
+  * This function changes the source of main image to selected image,hence selected image is displayed.
+  * Displays image name below the image.
+  * Note: For Exp1 : Finds the height and width of selected image and adjusts the ranges of rowstart,rowend.columnstart and columnend.\\
+
+ - *enable_band(arguments)*:
+  * This function is called when image is selected.
+  * This function checks whether input file has any extension (.jpg,.gif),if not it is assumed to be raw HDR image and band value text field is enabled.
+  * Band value is disabled by default because it's value is 3 for all image formats expect HDR,if image is HDR user should input no of bands.\\
+
+ - *set_max_rgb(arguments)*:
+  * This function is called when user inputs band value.
+  * This function changes the max of R,G,B values to input band value.
+  * Also updates the hint text to updated range.\\
+
+ - *change_slider(arguments)*:
+  * This function is called when user inputs value in text field which are present side by sliders.
+  * Changes the value of slider to input value in text field.
+  * Sets the value of slider to max when users inputs value greater than range(and also for minimum)\\
+
+ - *main_menu(arguments)*:
+  * This function is called when 'Main Menu' button is clicked.
+  
+** Explaination of each Experiment:
+*** Experiment 1:
+The title of this experiment is *Viewing Images in Different Bands*.
+**** Inputs:
+ - Input Image - (Button)
+ - Band Value (If input image is HDR) - (input textfield)
+ - R Value - (slider,textfield)
+ - G value - (slider,textfield)
+ - B value - (slider,textfield)
+ - Row start - (slider,textfield)
+ - Row end - (slider,textfield)
+ - Column start - (slider,textfield)
+ - Column end - (slider,textfield)
+ - Submit - (Button)
+ - *Note*: 
+  + Row start range: 1 - (Height of image - 100)
+  + Row End range: (Row start input+100) - height of image
+  + Column start range: 1 - (Width of image - 100)
+  + Column End range: (Column start input+100) - width of image
+**** Functions:
+ - adjust_end_value(arguments):
+  + Adjust the row end value and column end value depending on the value of input of row start and column start.
+  + The minimum differnce between the row start and row end,cloumn start and column end is 100px   
+
+*** Experiment 2:
+The title of this experiment is CONTARST ENHANCEMENT
+**** Inputs:
+ - Input Image - (Button)
+ - Band Value (If input image is HDR) - (input textfield)
+ - R Value - (slider,textfield)
+ - G value - (slider,textfield)
+ - B value - (slider,textfield) 
+ - Linear - (radio button)
+ - Standard Deviation - (radio button)
+ - Histogram - (radio button)
+ - Logarthmic - (radio button)
+ - Exponential - (radio button)
+ - Decoleration - (radio button)
+ - Variance 1 - (slider,textfield)
+ - Variance 2 - (slider,textfield)
+ - Submit - (Button)
+ - *Note*:
+  + Var1 > 0 for Standard Deviation
+  + Var1 = [0,255] for Logarthmic
+  + Var1 = [0,2], Var2 = [0,255] for Exponential
+**** Functions:
+ - set_mode(arguments):
+  + sets the mode of the experiments when a radio button is selected.
+  
+*** Experiment 3:
+The title of this experiment is *Smoothing*.
+**** Inputs:
+ - Input Image - (Button)
+ - Band Value (If input image is HDR) - (input textfield)
+ - Enhancement Type:
+  + Average - (radio button)
+  + Circular - (radio button)
+  + Gaussian - (radio button)
+  + Median - (radio button)
+  + Weighted Average - (radio button)
+ - Window1 Size - (slider,textfield)
+ - Window2 Size - (slider,textfield)
+ - Sigma Value - (slider,textfield)
+ - Submit - (Button)
+ - *Note*: 
+  + Ranges of Window1 Size,Window2 Size are 3 to 7 and takes only odd values.
+  + Sigma Value range: 0.5 - 3.0 (applicable only for gaussian mode)
+**** Functions:
+ - set_mode(arguments):
+  + sets the mode of the experiments when a radio button is selected.
+
+*** Experiment 4:
+The title of this experiment is *Edge Detection*.
+**** Inputs:
+ - Input Image - (Button)
+ - Band Value (If input image is HDR) - (input textfield)
+ - Select Edge Type:
+  + Sobel - (radio button)
+  + Prewitt - (radio button)
+  + Canny - (radio button)
+  + Log - (radio button)
+  + Roberts - (radio button)
+ - Threshold - (slider,textfield)
+ - Select Direction:
+  - Horizontal - (radio button)
+  - Vertical - (radio button)
+ - Submit - (Button)
+ - *Note*: 
+  + Ranges of Window1 Size,Window2 Size are 3 to 7 and takes only odd values.
+  + Sigma Value range: 0.5 - 3.0 (applicable only for gaussian mode)
+**** Functions:
+ - set_type(arguments):
+  + sets the mode of the experiments when a radio button is selected.
+ - set_dir(arguments):
+  + ssts the direction for the mode of the experiment.
+  
+*** Experiment 5:
+The title of this experiment is *Frequency Domain Filtering (Fourier Transform)*.
+**** Inputs:
+ - Input Image - (Button)
+ - Band Value (If input image is HDR) - (input textfield)
+ - R Value - (slider,textfield)
+ - G value - (slider,textfield)
+ - B value - (slider,textfield)
+ - Filter type:
+  + ButterWorth - (radio button)
+  + Gaussian - (radio button)
+ - Pass type:
+  + Lowpass - (radio button)
+  + Highpass - (radio button)
+ - Cutoff - (slider,textfield)
+ - Order - (slider,textfield)
+ - Submit - (Button)
+ - *Note*: 
+  + Cutoff range: 0.1 - 10
+  + Order: 1 -10
+**** Functions:
+ - set_filter(arguments):
+  + sets the type of filter for the experiment.
+ - set_pass(arguments):
+  + sets pass type of the experiment.
+  
+*** Experiment 6:
+The title of this experiment is *Colour Transform*.
+**** Inputs:
+ - Input Image - (Button)
+ - Band Value (If input image is HDR) - (input textfield)
+ - R Value - (slider,textfield)
+ - G value - (slider,textfield)
+ - B value - (slider,textfield)
+ - Submit - (Button)
+ 
+ ** Contributors
+
+ - Siddhartha Chaki - siddharthachaki02@gmail.com
+
+ - A.V.Ravi kiran - me15btech11039@iith.ac.in
+
+** Mentors
+
+ - Rupak Rokade
+ - Laxmi
+ 
+ 
